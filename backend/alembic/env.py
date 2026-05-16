@@ -11,6 +11,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 # Импортируем вашу Base и настройки
 from app.core.database import Base
 from app.core.config import settings
+import app.models
 
 # this is the Alembic Config object
 config = context.config
