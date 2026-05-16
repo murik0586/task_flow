@@ -9,6 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 
 # revision identifiers, used by Alembic.
@@ -20,15 +21,25 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    task_status = sa.Enum(
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            CREATE TYPE taskstatus AS ENUM ('OPEN', 'WORK', 'WAITING', 'CLOSE', 'CANCELLED');
+        EXCEPTION
+            WHEN duplicate_object THEN NULL;
+        END $$;
+        """
+    )
+    task_status = postgresql.ENUM(
         "OPEN",
         "WORK",
         "WAITING",
         "CLOSE",
         "CANCELLED",
         name="taskstatus",
+        create_type=False,
     )
-    task_status.create(op.get_bind(), checkfirst=True)
 
     op.create_table(
         "users",
@@ -90,4 +101,4 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_users_id"), table_name="users")
     op.drop_table("users")
 
-    sa.Enum(name="taskstatus").drop(op.get_bind(), checkfirst=True)
+    op.execute("DROP TYPE IF EXISTS taskstatus")

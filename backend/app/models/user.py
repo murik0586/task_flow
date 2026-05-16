@@ -17,5 +17,9 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     password_updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
+    @property
+    def last_name(self) -> str:
+        return self.second_name
+
     # Связь с задачами
     tasks = relationship("Task", back_populates="owner", lazy="dynamic")

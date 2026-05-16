@@ -3,11 +3,15 @@ from app.core.security import create_access_token
 def test_register_success(client):
     resp = client.post("/api/v1/auth/register", json={
         "email": "test@mymailample.com",
-        "password": "secret123"
+        "password": "secret123",
+        "first_name": "Test",
+        "last_name": "User",
     })
     assert resp.status_code == 200
     data = resp.json()
     assert data["email"] == "test@mymailample.com"
+    assert data["first_name"] == "Test"
+    assert data["last_name"] == "User"
     assert "id" in data
 
 def test_register_duplicate_email(client):
@@ -23,6 +27,15 @@ def test_login_success(client):
     data = resp.json()
     assert "access_token" in data
     assert "refresh_token" in data
+
+def test_login_oauth_success(client):
+    client.post("/api/v1/auth/register", json={"email": "oauth@mymail.com", "password": "pass"})
+    resp = client.post(
+        "/api/v1/auth/login/oauth",
+        data={"username": "oauth@mymail.com", "password": "pass"},
+    )
+    assert resp.status_code == 200
+    assert "access_token" in resp.json()
 
 def test_login_invalid_password(client):
     client.post("/api/v1/auth/register", json={"email": "bad@mymail.com", "password": "correct"})

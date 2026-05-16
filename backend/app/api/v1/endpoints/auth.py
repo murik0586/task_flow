@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 from app.core.config import settings
@@ -11,6 +12,24 @@ from app.api.v1.dependencies import get_current_user
 from app.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+def _create_token_response(user: User) -> dict:
+    iat = datetime.now(timezone.utc)
+    access_token = create_access_token(data={"sub": str(user.id), "iat": iat})
+    refresh_token = create_refresh_token(data={"sub": str(user.id), "iat": iat})
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+def _authenticate_or_401(db: Session, email: str, password: str) -> User:
+    user = authenticate_user(db, email, password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
 
 @router.post("/register", response_model=UserOut)
 def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -31,17 +50,17 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(user: UserLogin, db: Session = Depends(get_db)):
-    db_user = authenticate_user(db, user.email.__str__(), user.password)
-    if not db_user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    iat = datetime.now(timezone.utc)
-    access_token = create_access_token(data={"sub": str(db_user.id), "iat": iat})
-    refresh_token = create_refresh_token(data={"sub": str(db_user.id), "iat": iat})
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    db_user = _authenticate_or_401(db, user.email.__str__(), user.password)
+    return _create_token_response(db_user)
+
+
+@router.post("/login/oauth", response_model=Token, include_in_schema=False)
+def login_oauth(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+):
+    db_user = _authenticate_or_401(db, form_data.username, form_data.password)
+    return _create_token_response(db_user)
 
 @router.post("/refresh", response_model=Token)
 def refresh(token_data: TokenRefresh, db: Session = Depends(get_db)):
