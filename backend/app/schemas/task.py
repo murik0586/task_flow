@@ -6,7 +6,7 @@ from app.schemas.enums import TaskStatus, TaskPriority
 class TaskBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=150)
     description: Optional[str] = None
-    category_id: Optional[int] = None
+    category_id: Optional[int] = Field(None, ge=1)
     priority: TaskPriority = TaskPriority.MEDIUM
     due_date: Optional[datetime] = None
 
@@ -21,7 +21,7 @@ class TaskCreate(TaskBase):
 class TaskUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    category_id: Optional[int] = None
+    category_id: Optional[int] = Field(None, ge=1)
     priority: Optional[TaskPriority] = None
     due_date: Optional[datetime] = None
 

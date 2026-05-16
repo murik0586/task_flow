@@ -25,6 +25,20 @@ class TestCreateTask:
         assert response.status_code == 201
         assert response.json()["status"] == "open"
 
+    def test_create_task_rejects_zero_category_id(self, client: TestClient, test_user: User, override_auth):
+        response = client.post("/api/v1/tasks/", json={
+            "name": "No Category",
+            "category_id": 0,
+        })
+        assert response.status_code == 422
+
+    def test_create_task_missing_category(self, client: TestClient, test_user: User, override_auth):
+        response = client.post("/api/v1/tasks/", json={
+            "name": "Missing Category",
+            "category_id": 9999,
+        })
+        assert response.status_code == 404
+
     def test_create_task_unauthorized(self, client: TestClient):
         from main import app
         app.dependency_overrides.clear()

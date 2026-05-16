@@ -6,7 +6,7 @@ from app.models.user import User
 from app.schemas.ml import PredictionResponse
 from app.services.prediction_service import PredictionService
 
-router = APIRouter()
+router = APIRouter(tags=["ml"])
 
 @router.get("/tasks/{task_id}/predict", response_model=PredictionResponse)
 def predict_completion_time(
