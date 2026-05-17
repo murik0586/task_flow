@@ -1,5 +1,8 @@
 # tests/test_services/test_task_service.py
+from datetime import datetime, timedelta
+
 import pytest
+
 from app.services.task_service import TaskService
 from app.schemas.task import TaskCreate, TaskUpdate
 from app.models.task import Task, TaskStatus
@@ -20,7 +23,6 @@ class TestTaskService:
             name="Write report",
             description="Quarterly report",
             category_id=category.id,
-            initial_assessment_seconds=3600
         )
         task = TaskService.create_task(user.id, data, db_session)
 
@@ -29,8 +31,9 @@ class TestTaskService:
         assert task.description == "Quarterly report"
         assert task.category_id == category.id
         assert task.status == TaskStatus.OPEN
-        assert task.initial_assessment_seconds == 3600
         assert task.user_id == user.id
+        assert task.due_date is not None
+        assert task.due_date > datetime.now()
 
     def test_create_task_without_category(self, db_session):
         user = User(first_name="Ivan", second_name="Ivanov", login="ivan2", password_hash="hash")
@@ -40,7 +43,6 @@ class TestTaskService:
         data = TaskCreate(
             name="No category task",
             category_id=None,
-            initial_assessment_seconds=None
         )
         task = TaskService.create_task(user.id, data, db_session)
 
@@ -126,14 +128,12 @@ class TestTaskService:
             name="New name",
             description="New desc",
             category_id=cat2.id,
-            initial_assessment_seconds=7200
         )
         updated = TaskService.update_task(task.id, user.id, update_data, db_session)
 
         assert updated.name == "New name"
         assert updated.description == "New desc"
         assert updated.category_id == cat2.id
-        assert updated.initial_assessment_seconds == 7200
 
     def test_update_task_partial(self, db_session):
         user = User(first_name="Ivan", second_name="Ivanov", login="ivan9", password_hash="hash")
@@ -222,3 +222,16 @@ class TestTaskService:
         assert closed_task.status == TaskStatus.CLOSE
         assert closed_task.final_assessment_seconds == final_seconds
         assert retrain_called is True
+
+
+    def test_create_task_auto_due_date(self, db_session):
+        user = User(first_name="Ivan", second_name="Ivanov", login="ivan15", password_hash="hash")
+        db_session.add(user)
+        db_session.commit()
+
+        data = TaskCreate(name="Test", due_date=None)
+        task = TaskService.create_task(user.id, data, db_session)
+    
+        assert task.due_date is not None
+        expected = datetime.now() + timedelta(days=1)
+        assert abs((task.due_date - expected).total_seconds()) < 5

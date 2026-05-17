@@ -1,8 +1,8 @@
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from app.models.task import Task, TaskStatus
 from app.models.category import Category
 from app.schemas.task import TaskCreate, TaskUpdate
-
 
 class TaskService:
 
@@ -48,13 +48,19 @@ class TaskService:
             if not category:
                 raise ValueError("Category not found")
 
+        due_date = data.due_date
+        if due_date is None:
+            due_date = datetime.now() + timedelta(days=1)       
+        
+
         task = Task(
             user_id=user_id,
             name=data.name,
             description=data.description,
             category_id=data.category_id,
             status=TaskStatus.OPEN,
-            initial_assessment_seconds=data.initial_assessment_seconds,
+#            initial_assessment_seconds=data.initial_assessment_seconds,
+            due_date=due_date,
         )
         db.add(task)
         db.commit()
@@ -76,8 +82,8 @@ class TaskService:
             if not category:
                 raise ValueError("Category not found")
             task.category_id = data.category_id
-        if data.initial_assessment_seconds is not None:
-            task.initial_assessment_seconds = data.initial_assessment_seconds
+#        if data.initial_assessment_seconds is not None:
+#            task.initial_assessment_seconds = data.initial_assessment_seconds
 
         db.commit()
         db.refresh(task)
