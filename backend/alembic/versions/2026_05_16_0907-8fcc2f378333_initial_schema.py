@@ -73,6 +73,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(length=200), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("status", task_status, nullable=False),
+        sa.Column("due_date", sa.DateTime(), nullable=True),
         sa.Column("initial_assessment_seconds", sa.Integer(), nullable=True),
         sa.Column("final_assessment_seconds", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(["category_id"], ["categories.id"], ondelete="SET NULL"),
