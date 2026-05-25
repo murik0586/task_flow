@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
+
 
 class Category(Base):
     __tablename__ = "categories"
@@ -9,5 +10,5 @@ class Category(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, nullable=False, index=True)
 
-    tasks = relationship("Task", back_populates="category", passive_deletes=True)
-
+    tasks = relationship("Task", back_populates="category",
+                         passive_deletes=True)

@@ -1,12 +1,17 @@
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 import pytest
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base
 from fastapi import HTTPException
 
 from app.utils.pagination import apply_pagination
+
+sys.path.insert(0,
+                os.path.abspath(os.path.
+                                join(os.path.
+                                     dirname(__file__),
+                                     "../..")))
 
 # Фикстуры
 
@@ -129,7 +134,8 @@ class TestApplyPagination:
         assert total1 == total2 == 25
 
     def test_negative_skip(self, populated_db):
-        """Отрицательный skip — SQLAlchemy проигнорирует offset, items не пуст."""
+        """Отрицательный skip —
+        SQLAlchemy проигнорирует offset, items не пуст."""
         query = populated_db.query(FakeModel)
         total, items = apply_pagination(query, skip=-5, limit=10)
         assert total == 25

@@ -18,7 +18,8 @@ def test_predict_completion_time_success(
         calls["args"] = (task_id, user_id, db)
         return 123.456
 
-    monkeypatch.setattr(PredictionService, "get_prediction", fake_get_prediction)
+    monkeypatch.setattr(PredictionService,
+                        "get_prediction", fake_get_prediction)
 
     response = client.get("/api/v1/tasks/42/predict")
 
@@ -40,7 +41,8 @@ def test_predict_completion_time_not_found(
     def fake_get_prediction(task_id: int, user_id: int, db: Session) -> float:
         raise ValueError("Task not found")
 
-    monkeypatch.setattr(PredictionService, "get_prediction", fake_get_prediction)
+    monkeypatch.setattr(PredictionService,
+                        "get_prediction", fake_get_prediction)
 
     response = client.get("/api/v1/tasks/9999/predict")
 

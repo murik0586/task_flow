@@ -4,6 +4,7 @@ from app.models.task import Task, TaskStatus
 from app.models.category import Category
 from app.schemas.task import TaskCreate, TaskUpdate
 
+
 class TaskService:
 
     @staticmethod
@@ -50,8 +51,7 @@ class TaskService:
 
         due_date = data.due_date
         if due_date is None:
-            due_date = datetime.now() + timedelta(days=1)       
-        
+            due_date = datetime.now() + timedelta(days=1)
 
         task = Task(
             user_id=user_id,
@@ -59,7 +59,7 @@ class TaskService:
             description=data.description,
             category_id=data.category_id,
             status=TaskStatus.OPEN,
-#            initial_assessment_seconds=data.initial_assessment_seconds,
+            # initial_assessment_seconds=data.initial_assessment_seconds,
             due_date=due_date,
         )
         db.add(task)
@@ -68,7 +68,8 @@ class TaskService:
         return task
 
     @staticmethod
-    def update_task(task_id: int, user_id: int, data: TaskUpdate, db: Session) -> Task:
+    def update_task(task_id: int, user_id: int,
+                    data: TaskUpdate, db: Session) -> Task:
         task = TaskService.get_task(task_id, user_id, db)
 
         if data.name is not None:
@@ -96,7 +97,8 @@ class TaskService:
         db.commit()
 
     @staticmethod
-    def change_status(task_id: int, user_id: int, new_status: TaskStatus, db: Session) -> Task:
+    def change_status(task_id: int, user_id: int,
+                      new_status: TaskStatus, db: Session) -> Task:
         task = TaskService.get_task(task_id, user_id, db)
         task.status = new_status
         db.commit()
@@ -104,7 +106,8 @@ class TaskService:
         return task
 
     @staticmethod
-    def close_task(task_id: int, user_id: int, final_seconds: int, db: Session) -> Task:
+    def close_task(task_id: int, user_id: int,
+                   final_seconds: int, db: Session) -> Task:
         task = TaskService.get_task(task_id, user_id, db)
 
         task.status = TaskStatus.CLOSE

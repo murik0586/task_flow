@@ -9,13 +9,15 @@ from app.schemas.category import CategoryCreate, CategoryOut
 router = APIRouter(prefix="/categories", tags=["categories"])
 
 
-@router.post("/", response_model=CategoryOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=CategoryOut,
+             status_code=status.HTTP_201_CREATED)
 def create_category(
         category_in: CategoryCreate,
         db: Session = Depends(get_db),
 ):
     """Создание новой категории."""
-    existing = db.query(Category).filter(Category.name == category_in.name).first()
+    existing = (db.query(Category).
+                filter(Category.name == category_in.name).first())
     if existing:
         raise HTTPException(status_code=400, detail="Category already exists")
 
@@ -30,7 +32,8 @@ def create_category(
 def get_categories(
         skip: int = Query(0, ge=0),
         limit: int = Query(100, ge=1, le=500),
-        search: Optional[str] = Query(None, description="Поиск по имени категории"),
+        search: Optional[str] = Query(None,
+                                      description="Поиск по имени категории"),
         db: Session = Depends(get_db),
 ):
     """Получение списка всех категорий."""
@@ -68,7 +71,8 @@ def update_category(
         Category.id != category_id
     ).first()
     if existing:
-        raise HTTPException(status_code=400, detail="Category with this name already exists")
+        raise HTTPException(status_code=400,
+                            detail="Category with this name already exists")
 
     category.name = category_in.name
     db.commit()

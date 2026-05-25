@@ -1,6 +1,7 @@
-from typing import Optional, Tuple
+from typing import Tuple
 from sqlalchemy.orm import Query
 from fastapi import HTTPException
+
 
 def apply_pagination(
     query: Query,

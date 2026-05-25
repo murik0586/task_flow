@@ -26,9 +26,11 @@ def create_task(
 ):
     """Создание новой задачи."""
     if task_in.category_id is not None:
-        category = db.query(Category).filter(Category.id == task_in.category_id).first()
+        category = (db.query(Category)
+                    .filter(Category.id == task_in.category_id).first())
         if category is None:
-            raise HTTPException(status_code=404, detail="Категория не найдена")
+            raise HTTPException(status_code=404,
+                                detail="Категория не найдена")
 
     task = Task(
         name=task_in.name,
@@ -50,7 +52,8 @@ def get_tasks(
         None, alias="status",
         description="Фильтр: open, work, waiting, close, cancelled"
     ),
-    category_id: Optional[int] = Query(None, description="Фильтр по ID категории"),
+    category_id: Optional[int] = Query(None,
+                                       description="Фильтр по ID категории"),
     sort_by: Optional[str] = Query(
         None, pattern="^(id|name|status)$",
         description="Сортировка: id, name, status"
@@ -71,7 +74,8 @@ def get_tasks(
         except ValueError:
             raise HTTPException(
                 status_code=422,
-                detail=f"Недопустимый статус. Допустимые: {[s.value for s in TaskStatus]}"
+                detail="Недопустимый статус. Допустимые: " +
+                       f"{[s.value for s in TaskStatus]}"
             )
         query = query.filter(Task.status == ts)
 
@@ -81,7 +85,8 @@ def get_tasks(
     sort_map = {"id": Task.id, "name": Task.name, "status": Task.status}
     if sort_by:
         col = sort_map[sort_by]
-        query = query.order_by(col.desc() if sort_order == "desc" else col.asc())
+        query = query.order_by(col.desc()
+                               if sort_order == "desc" else col.asc())
     else:
         query = query.order_by(Task.id.desc())
 
@@ -97,7 +102,9 @@ def get_task(
     db: Session = Depends(get_db),
 ):
     """Получить задачу по ID (только свою)."""
-    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
+    task = (db.query(Task)
+            .filter(Task.id == task_id, Task.user_id == current_user.id)
+            .first())
     if not task:
         raise HTTPException(status_code=404, detail="Задача не найдена")
     return task
@@ -111,7 +118,9 @@ def update_task(
     db: Session = Depends(get_db),
 ):
     """Обновление задачи."""
-    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
+    task = (db.query(Task)
+            .filter(Task.id == task_id, Task.user_id == current_user.id)
+            .first())
     if not task:
         raise HTTPException(status_code=404, detail="Задача не найдена")
 
@@ -127,7 +136,10 @@ def update_task(
 @router.patch("/{task_id}/status", response_model=TaskOut)
 def update_task_status(
     task_id: int,
-    new_status: str = Query(..., description="Новый статус: open, work, waiting, close, cancelled"),
+    new_status: str = Query(...,
+                            description="Новый статус: " +
+                                        "open, work, waiting, " +
+                                        "close, cancelled"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -137,10 +149,13 @@ def update_task_status(
     except ValueError:
         raise HTTPException(
             status_code=422,
-            detail=f"Недопустимый статус. Допустимые: {[s.value for s in TaskStatus]}"
+            detail="Недопустимый статус. Допустимые: " +
+                   f"{[s.value for s in TaskStatus]}"
         )
 
-    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
+    task = (db.query(Task)
+            .filter(Task.id == task_id, Task.user_id == current_user.id)
+            .first())
     if not task:
         raise HTTPException(status_code=404, detail="Задача не найдена")
 
@@ -157,7 +172,9 @@ def delete_task(
     db: Session = Depends(get_db),
 ):
     """Удаление задачи."""
-    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
+    task = (db.query(Task)
+            .filter(Task.id == task_id, Task.user_id == current_user.id)
+            .first())
     if not task:
         raise HTTPException(status_code=404, detail="Задача не найдена")
 

@@ -5,13 +5,12 @@ from pathlib import Path
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-# Добавляем путь к вашему проекту в sys.path
-sys.path.append(str(Path(__file__).parent.parent))
-
-# Импортируем вашу Base и настройки
+# Импортируем Base и настройки
 from app.core.database import Base
 from app.core.config import settings
-import app.models
+
+# Добавляем путь к проекту в sys.path
+sys.path.append(str(Path(__file__).parent.parent))
 
 # this is the Alembic Config object
 config = context.config
@@ -27,7 +26,8 @@ target_metadata = Base.metadata
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
     # Используем синхронную версию URL
-    sync_url = settings.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
+    sync_url = (settings.DATABASE_URL
+                .replace("postgresql+asyncpg://", "postgresql://"))
     context.configure(
         url=sync_url,
         target_metadata=target_metadata,
@@ -41,14 +41,16 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
-    sync_url = settings.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
+    sync_url = (settings.DATABASE_URL
+                .replace("postgresql+asyncpg://", "postgresql://"))
     connectable = create_engine(
         sync_url,
         poolclass=pool.NullPool,
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(connection=connection,
+                          target_metadata=target_metadata)
         with context.begin_transaction():
             context.run_migrations()
 
