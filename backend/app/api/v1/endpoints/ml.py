@@ -8,6 +8,7 @@ from app.services.prediction_service import PredictionService
 
 router = APIRouter(tags=["ml"])
 
+
 @router.get("/tasks/{task_id}/predict", response_model=PredictionResponse)
 def predict_completion_time(
     task_id: int,
@@ -15,7 +16,10 @@ def predict_completion_time(
     db: Session = Depends(get_db),
 ):
     try:
-        seconds = PredictionService.get_prediction(task_id, current_user.id, db)
-        return PredictionResponse(task_id=task_id, predicted_seconds=round(seconds, 2))
+        seconds = PredictionService.get_prediction(task_id,
+                                                   current_user.id, db)
+        return PredictionResponse(task_id=task_id,
+                                  predicted_seconds=round(seconds, 2))
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=str(e))

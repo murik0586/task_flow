@@ -1,6 +1,7 @@
 from app.core.database import get_db
 from unittest.mock import patch, MagicMock
 
+
 def test_get_db():
     """Проверяем, что get_db работает корректно."""
     mock_session = MagicMock()

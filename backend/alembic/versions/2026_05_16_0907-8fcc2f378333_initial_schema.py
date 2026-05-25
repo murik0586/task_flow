@@ -1,7 +1,6 @@
 """initial_schema
 
 Revision ID: 8fcc2f378333
-Revises: 
 Create Date: 2026-05-16 09:07:58.698340
 
 """
@@ -43,14 +42,22 @@ def upgrade() -> None:
 
     op.create_table(
         "users",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("first_name", sa.String(length=50), nullable=False),
-        sa.Column("second_name", sa.String(length=50), nullable=False),
-        sa.Column("login", sa.String(length=50), nullable=False),
-        sa.Column("password_hash", sa.String(length=128), nullable=False),
-        sa.Column("email", sa.String(length=128), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("password_updated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("id",
+                  sa.Integer(), nullable=False),
+        sa.Column("first_name",
+                  sa.String(length=50), nullable=False),
+        sa.Column("second_name",
+                  sa.String(length=50), nullable=False),
+        sa.Column("login",
+                  sa.String(length=50), nullable=False),
+        sa.Column("password_hash",
+                  sa.String(length=128), nullable=False),
+        sa.Column("email",
+                  sa.String(length=128), nullable=True),
+        sa.Column("created_at",
+                  sa.DateTime(timezone=True), nullable=False),
+        sa.Column("password_updated_at",
+                  sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_users_id"), "users", ["id"], unique=False)
@@ -62,8 +69,10 @@ def upgrade() -> None:
         sa.Column("name", sa.String(length=100), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_categories_id"), "categories", ["id"], unique=False)
-    op.create_index(op.f("ix_categories_name"), "categories", ["name"], unique=True)
+    op.create_index(op.f("ix_categories_id"),
+                    "categories", ["id"], unique=False)
+    op.create_index(op.f("ix_categories_name"),
+                    "categories", ["name"], unique=True)
 
     op.create_table(
         "tasks",
@@ -76,14 +85,20 @@ def upgrade() -> None:
         sa.Column("due_date", sa.DateTime(), nullable=True),
         sa.Column("initial_assessment_seconds", sa.Integer(), nullable=True),
         sa.Column("final_assessment_seconds", sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(["category_id"], ["categories.id"], ondelete="SET NULL"),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["category_id"],
+                                ["categories.id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(["user_id"],
+                                ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_tasks_category_id"), "tasks", ["category_id"], unique=False)
-    op.create_index(op.f("ix_tasks_id"), "tasks", ["id"], unique=False)
-    op.create_index(op.f("ix_tasks_status"), "tasks", ["status"], unique=False)
-    op.create_index(op.f("ix_tasks_user_id"), "tasks", ["user_id"], unique=False)
+    op.create_index(op.f("ix_tasks_category_id"),
+                    "tasks", ["category_id"], unique=False)
+    op.create_index(op.f("ix_tasks_id"),
+                    "tasks", ["id"], unique=False)
+    op.create_index(op.f("ix_tasks_status"),
+                    "tasks", ["status"], unique=False)
+    op.create_index(op.f("ix_tasks_user_id"),
+                    "tasks", ["user_id"], unique=False)
 
 
 def downgrade() -> None:

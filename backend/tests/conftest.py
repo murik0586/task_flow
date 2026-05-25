@@ -12,11 +12,13 @@ from app.core.config import settings
 
 TEST_ML_MODEL_PATH = "./test_ml_model.pkl"
 
+
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_env():
     """Переопределяем настройки на тестовые."""
-    settings.DATABASE_URL = os.getenv("TEST_DATABASE_URL",
-                                      "postgresql://test_user:test_pass@localhost:5433/test_db")
+    settings.DATABASE_URL = (
+        os.getenv("TEST_DATABASE_URL",
+                  "postgresql://test_user:test_pass@localhost:5433/test_db"))
     settings.ML_MODEL_PATH = TEST_ML_MODEL_PATH
     # Обновляем env для случаев, если что-то читает os.environ
     os.environ["DATABASE_URL"] = settings.DATABASE_URL
@@ -63,7 +65,8 @@ def client(db_session):
 
 @pytest.fixture(scope="function", autouse=True)
 def clean_ml_model_file():
-    """Удаляет файл модели перед каждым тестом и после, чтобы избежать зависимости от состояния."""
+    """Удаляет файл модели перед каждым тестом и после,
+    чтобы избежать зависимости от состояния."""
     if os.path.exists(TEST_ML_MODEL_PATH):
         os.remove(TEST_ML_MODEL_PATH)
     yield
@@ -74,9 +77,12 @@ def clean_ml_model_file():
 @pytest.fixture
 def sample_users(db_session):
     users = [
-        User(id=1, first_name="Alice", second_name="Smith", login="alice", password_hash="hash1"),
-        User(id=2, first_name="Bob", second_name="Brown", login="bob", password_hash="hash2"),
-        User(id=3, first_name="Charlie", second_name="Chaplin", login="charlie", password_hash="hash3"),
+        User(id=1, first_name="Alice", second_name="Smith",
+             login="alice", password_hash="hash1"),
+        User(id=2, first_name="Bob", second_name="Brown",
+             login="bob", password_hash="hash2"),
+        User(id=3, first_name="Charlie", second_name="Chaplin",
+             login="charlie", password_hash="hash3"),
     ]
     db_session.add_all(users)
     db_session.commit()
@@ -95,7 +101,8 @@ def sample_categories(db_session):
     return cats
 
 
-def create_closed_task(db_session, user_id, category_id, final_seconds, initial_seconds=None):
+def create_closed_task(db_session, user_id, category_id,
+                       final_seconds, initial_seconds=None):
     task = Task(
         user_id=user_id,
         category_id=category_id,
@@ -107,4 +114,3 @@ def create_closed_task(db_session, user_id, category_id, final_seconds, initial_
     db_session.add(task)
     db_session.commit()
     return task
-

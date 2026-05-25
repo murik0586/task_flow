@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/dbname"
     SECRET_KEY: str = "your-secret-key"
@@ -9,5 +10,6 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
 
     model_config = SettingsConfigDict(env_file=".env")
+
 
 settings = Settings()

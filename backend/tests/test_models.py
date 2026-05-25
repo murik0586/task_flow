@@ -4,6 +4,7 @@ from app.models.user import User
 from app.models.category import Category
 from app.models.task import Task, TaskStatus
 
+
 class TestUser:
     def test_create_and_retrieve(self, db_session):
         user = User(
@@ -20,17 +21,20 @@ class TestUser:
         assert saved.first_name == "Иван"
 
     def test_unique_login(self, db_session):
-        db_session.add(User(first_name="A", second_name="B", login="same", password_hash="x"))
+        db_session.add(User(first_name="A", second_name="B",
+                            login="same", password_hash="x"))
         db_session.commit()
 
-        db_session.add(User(first_name="C", second_name="D", login="same", password_hash="y"))
+        db_session.add(User(first_name="C", second_name="D",
+                            login="same", password_hash="y"))
         with pytest.raises(IntegrityError):
             db_session.commit()
 
 
 class TestTask:
     def test_persist_and_relationships(self, db_session):
-        user = User(first_name="A", second_name="B", login="taskuser", password_hash="h")
+        user = User(first_name="A", second_name="B",
+                    login="taskuser", password_hash="h")
         category = Category(name="Дом")
         db_session.add_all([user, category])
         db_session.flush()
@@ -53,7 +57,8 @@ class TestTask:
 
     def test_open_is_default_in_database(self, db_session):
         # Честно: создаём без указания статуса, сохраняем, проверяем
-        user = User(first_name="X", second_name="Y", login="xy", password_hash="z")
+        user = User(first_name="X", second_name="Y",
+                    login="xy", password_hash="z")
         db_session.add(user)
         db_session.flush()
 

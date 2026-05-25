@@ -7,6 +7,7 @@ from app.core.database import get_db
 from app.core.security import oauth2_scheme
 from app.models.user import User
 
+
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
@@ -20,7 +21,8 @@ async def get_current_user(
         raise credentials_exception
 
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY,
+                             algorithms=[settings.ALGORITHM])
         user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception

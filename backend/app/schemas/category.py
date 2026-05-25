@@ -1,10 +1,13 @@
 from pydantic import BaseModel, ConfigDict
 
+
 class CategoryBase(BaseModel):
     name: str
 
+
 class CategoryCreate(CategoryBase):
     pass
+
 
 class CategoryOut(CategoryBase):
     id: int

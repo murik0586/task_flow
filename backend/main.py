@@ -24,6 +24,8 @@ app.include_router(tasks_router, prefix=API_V1_PREFIX)
 app.include_router(ml_router, prefix=API_V1_PREFIX)
 
 app.include_router(categories_router, prefix=API_V1_PREFIX)
+
+
 @app.get("/")
 async def root():
     return {"service": "task-flow-api", "status": "ok"}
