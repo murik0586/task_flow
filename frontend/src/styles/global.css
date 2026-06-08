@@ -1,0 +1,59 @@
+:root {
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --secondary-color: #64748b;
+    --danger-color: #ef4444;
+    --bg-color: #f8fafc;
+    --card-bg: #efeaf1ef;
+    --text-color: #050608;
+    --border-color: #130404;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --radius: 8px;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.5;
+  }
+  
+  .container {
+    
+    max-width: 800px;   /* ширина 1200 -> 800 (как удобней) */
+    margin: 0 auto;
+    padding: 0 4rem;
+  }
+  
+  button, input, textarea, select {
+    font-family: inherit;
+  }
+
+  h1, h2, h3 {
+    color: var(--text-color);
+  }
+
+  /* Планшеты */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+/* Мобильные телефоны */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+}
