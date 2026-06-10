@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint src --ext .js,.jsx",
+        "lint:fix": "eslint src --ext .js,.jsx --fix",
+    "format": "prettier --write 'src/**/*.{js,jsx,css}'",
     "preview": "vite preview"
   },
   "dependencies": {
