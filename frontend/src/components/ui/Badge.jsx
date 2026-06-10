@@ -1,4 +1,5 @@
 import React from 'react';
+import { STATUS_LABELS } from '../../constants/statusLabels';
 
 export const Badge = ({ status, children }) => {
   const variants = {
@@ -30,6 +31,8 @@ export const Badge = ({ status, children }) => {
   };
 
   const style = variants[status] || variants.open;
+  
+  const displayText = children || STATUS_LABELS[status] || status;
 
   return (
     <span

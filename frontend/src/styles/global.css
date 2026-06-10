@@ -57,3 +57,14 @@
     font-size: 1.5rem;
   }
 }
+
+/* Дополнительные улучшения для мобильных устройств */
+@media (max-width: 640px) {
+  .tasks-grid {
+    grid-template-columns: 1fr;
+  }
+  .filters-bar {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
