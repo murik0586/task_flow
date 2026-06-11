@@ -17,6 +17,12 @@ class TaskStatus(str, enum.Enum):
     CANCELLED = "cancelled"
 
 
+class TaskPriority(str, enum.Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
 class Task(Base):
     __tablename__ = "tasks"
 
@@ -32,6 +38,9 @@ class Task(Base):
     status = Column(Enum(TaskStatus),
                     default=TaskStatus.OPEN,
                     nullable=False, index=True)
+    priority = Column(Enum(TaskPriority),
+                      default=TaskPriority.MEDIUM,
+                      nullable=False, index=True)
     due_date = Column(DateTime, nullable=True)
 
     # Оценки времени хранятся в секундах (целое число, может быть NULL)

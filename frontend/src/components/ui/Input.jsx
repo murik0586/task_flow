@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Input = ({
   label,
   name,
@@ -16,7 +14,7 @@ export const Input = ({
     border: `1px solid ${error ? 'var(--danger-color)' : 'var(--border-color)'}`,
     borderRadius: 'var(--radius)',
     fontSize: '1rem',
-    backgroundColor: 'var(--card-bg)',
+    backgroundColor: 'var(--control-bg)',
     color: 'var(--text-color)',
   };
 
@@ -33,6 +31,7 @@ export const Input = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        required={required}
         style={inputStyle}
       />
       {error && <div style={{ color: 'var(--danger-color)', fontSize: '0.75rem', marginTop: '0.25rem' }}>{error}</div>}

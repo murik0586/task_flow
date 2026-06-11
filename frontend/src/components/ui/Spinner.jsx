@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Spinner = ({ size = 'md', fullPage = false }) => {
   const sizes = {
     sm: 20,

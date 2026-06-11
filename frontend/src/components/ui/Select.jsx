@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Select = ({
   label,
   name,
@@ -16,7 +14,7 @@ export const Select = ({
     border: `1px solid ${error ? 'var(--danger-color)' : 'var(--border-color)'}`,
     borderRadius: 'var(--radius)',
     fontSize: '1rem',
-    backgroundColor: 'var(--card-bg)',
+    backgroundColor: 'var(--control-bg)',
     color: 'var(--text-color)',
     cursor: 'pointer',
   };

@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Button = ({
   children,
   onClick,
@@ -8,6 +6,7 @@ export const Button = ({
   disabled = false,
   size = 'md',
   className = '',
+  style = {},
 }) => {
   const baseStyles = {
     display: 'inline-flex',
@@ -45,7 +44,7 @@ export const Button = ({
     lg: { padding: '0.75rem 1.5rem', fontSize: '1rem' },
   };
 
-  const styles = { ...sizes[size], ...variants[variant], ...baseStyles };
+  const styles = { ...baseStyles, ...sizes[size], ...variants[variant], ...style };
 
   return (
     <button

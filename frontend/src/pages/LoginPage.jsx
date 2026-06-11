@@ -1,52 +1,68 @@
 import { useState, useContext } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { getApiErrorMessage } from '../api/client';
+import { Container } from '../components/layout/Container';
+import { Button } from '../components/ui/Button';
+import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { Input } from '../components/ui/Input';
 import { AuthContext } from '../store/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
       await login(email, password);
-      navigate('/tasks');
+      navigate(location.state?.from?.pathname || '/tasks', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.detail || 'Ошибка входа');
+      setError(getApiErrorMessage(err, 'Ошибка входа'));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-6">Вход в Task Flow</h1>
-        {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded mb-4"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border rounded mb-4"
-          required
-        />
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-          Войти
-        </button>
-        <p className="mt-4 text-center">
-          Нет аккаунта? <Link to="/register" className="text-blue-500">Зарегистрироваться</Link>
+    <Container>
+      <main style={{ maxWidth: 420, margin: '0 auto', padding: '3rem 0' }}>
+        <form onSubmit={handleSubmit} className="card">
+          <h1 style={{ marginBottom: '1rem' }}>Вход в Task Flow</h1>
+          {error && (
+            <div style={{ marginBottom: '1rem' }}>
+              <ErrorMessage message={error} />
+            </div>
+          )}
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <Input
+            label="Пароль"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Button type="submit" disabled={loading} style={{ width: '100%' }}>
+            {loading ? 'Входим...' : 'Войти'}
+          </Button>
+        </form>
+        <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+          Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
         </p>
-      </form>
-    </div>
+      </main>
+    </Container>
   );
 };

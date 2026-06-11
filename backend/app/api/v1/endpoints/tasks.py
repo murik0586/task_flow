@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.api.v1.dependencies import get_current_user
 from app.core.database import get_db
 from app.models.category import Category
-from app.models.task import Task, TaskStatus
+from app.models.task import Task, TaskPriority, TaskStatus
 from app.models.user import User
 from app.schemas.task import TaskCreate, TaskUpdate, TaskOut, TaskListOut
 
@@ -36,6 +36,8 @@ def create_task(
         name=task_in.name,
         description=task_in.description,
         category_id=task_in.category_id,
+        priority=TaskPriority(task_in.priority.value),
+        due_date=task_in.due_date,
         user_id=current_user.id,
     )
     db.add(task)
@@ -126,6 +128,8 @@ def update_task(
 
     update_data = task_in.model_dump(exclude_unset=True)
     for field, value in update_data.items():
+        if field == "priority" and value is not None:
+            value = TaskPriority(value)
         setattr(task, field, value)
 
     db.commit()

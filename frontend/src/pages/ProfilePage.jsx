@@ -1,4 +1,9 @@
 import { useState, useContext } from 'react';
+import { getApiErrorMessage } from '../api/client';
+import { Container } from '../components/layout/Container';
+import { Button } from '../components/ui/Button';
+import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { Input } from '../components/ui/Input';
 import { AuthContext } from '../store/AuthContext';
 
 export const ProfilePage = () => {
@@ -8,13 +13,20 @@ export const ProfilePage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
+    setMessage('');
+    setError('');
+
     if (newPassword !== confirmPassword) {
       setError('Пароли не совпадают');
       return;
     }
+
+    setLoading(true);
+
     try {
       await changePassword(oldPassword, newPassword);
       setMessage('Пароль успешно изменён');
@@ -23,56 +35,65 @@ export const ProfilePage = () => {
       setConfirmPassword('');
       setError('');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Ошибка смены пароля');
+      setError(getApiErrorMessage(err, 'Ошибка смены пароля'));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Профиль пользователя</h1>
-      
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h2 className="text-xl font-semibold mb-4">Информация</h2>
-        <p><strong>Email:</strong> {user?.email}</p>
-        <p><strong>Имя:</strong> {user?.first_name || '—'}</p>
-        <p><strong>Фамилия:</strong> {user?.last_name || '—'}</p>
-      </div>
+    <Container>
+      <main style={{ maxWidth: 640, margin: '0 auto', padding: '2rem 0 3rem' }}>
+        <h1 style={{ marginBottom: '1.5rem' }}>Профиль пользователя</h1>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Смена пароля</h2>
-        {message && <div className="bg-green-100 text-green-700 p-3 rounded mb-4">{message}</div>}
-        {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
-        
-        <form onSubmit={handleChangePassword}>
-          <input
-            type="password"
-            placeholder="Текущий пароль"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
-            className="w-full p-2 border rounded mb-4"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Новый пароль"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full p-2 border rounded mb-4"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Подтвердите новый пароль"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full p-2 border rounded mb-4"
-            required
-          />
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-            Сменить пароль
-          </button>
-        </form>
-      </div>
-    </div>
+        <section className="card" style={{ marginBottom: '1.5rem' }}>
+          <h2 style={{ marginBottom: '1rem' }}>Информация</h2>
+          <p>
+            <strong>Email:</strong> {user?.email || 'Неизвестно'}
+          </p>
+        </section>
+
+        <section className="card">
+          <h2 style={{ marginBottom: '1rem' }}>Смена пароля</h2>
+          {message && (
+            <div style={{ color: '#15803d', marginBottom: '1rem' }}>
+              {message}
+            </div>
+          )}
+          {error && (
+            <div style={{ marginBottom: '1rem' }}>
+              <ErrorMessage message={error} />
+            </div>
+          )}
+
+          <form onSubmit={handleChangePassword}>
+            <Input
+              label="Текущий пароль"
+              type="password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              required
+            />
+            <Input
+              label="Новый пароль"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+            <Input
+              label="Подтвердите новый пароль"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Меняю...' : 'Сменить пароль'}
+            </Button>
+          </form>
+        </section>
+      </main>
+    </Container>
   );
 };

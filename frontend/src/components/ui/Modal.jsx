@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Button } from './Button';
 
 export const Modal = ({ isOpen, onClose, title, children, onConfirm, confirmText = 'Подтвердить', cancelText = 'Отмена' }) => {

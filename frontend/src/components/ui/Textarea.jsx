@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Textarea = ({
   label,
   name,
@@ -17,7 +15,7 @@ export const Textarea = ({
     borderRadius: 'var(--radius)',
     fontSize: '1rem',
     fontFamily: 'inherit',
-    backgroundColor: 'white',
+    backgroundColor: 'var(--control-bg)',
     color: 'var(--text-color)',
     resize: 'vertical',
   };
@@ -35,6 +33,7 @@ export const Textarea = ({
         onChange={onChange}
         placeholder={placeholder}
         rows={rows}
+        required={required}
         style={textareaStyle}
       />
       {error && (

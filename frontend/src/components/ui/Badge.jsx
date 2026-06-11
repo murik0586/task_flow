@@ -1,4 +1,3 @@
-import React from 'react';
 import { STATUS_LABELS } from '../../constants/statusLabels';
 
 export const Badge = ({ status, children }) => {
@@ -45,7 +44,7 @@ export const Badge = ({ status, children }) => {
         ...style,
       }}
     >
-      {children || status}
+      {displayText}
     </span>
   );
 };
