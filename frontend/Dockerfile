@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Копируем зависимости
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Копируем исходники и собираем
 COPY . .
