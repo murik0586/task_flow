@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch
 from app.services.prediction_service import PredictionService
 from app.models.task import Task, TaskStatus
+from app.schemas.ml import PredictionResult
 
 
 class TestPredictionService:
@@ -29,8 +30,31 @@ class TestPredictionService:
         db_session.add(new_task)
         db_session.commit()
         pred = PredictionService.get_prediction(new_task.id, 1, db_session)
-        assert isinstance(pred, float)
-        assert pred > 0
+        assert isinstance(pred, PredictionResult)
+        assert pred.predicted_seconds > 0
+        assert pred.model_source in {"personal", "global", "fallback"}
+
+    def test_get_prediction_insufficient_data(self, db_session,
+                                              sample_users,
+                                              sample_categories):
+        """Менее MIN_USER_SAMPLES завершённых задач — ошибка."""
+        for i in range(3):
+            task = Task(
+                user_id=1, category_id=1,
+                name=f"task{i}", status=TaskStatus.CLOSE,
+                final_assessment_seconds=100 + i * 10,
+            )
+            db_session.add(task)
+        db_session.commit()
+
+        new_task = Task(user_id=1, category_id=1,
+                        name="predict me", status=TaskStatus.OPEN)
+        db_session.add(new_task)
+        db_session.commit()
+
+        from app.services.prediction_service import InsufficientTrainingDataError
+        with pytest.raises(InsufficientTrainingDataError):
+            PredictionService.get_prediction(new_task.id, 1, db_session)
 
     def test_get_prediction_task_not_found(self, db_session):
         """Если задача не найдена, сервис выбрасывает ValueError."""

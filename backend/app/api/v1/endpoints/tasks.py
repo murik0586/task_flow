@@ -14,6 +14,7 @@ from app.models.category import Category
 from app.models.task import Task, TaskPriority, TaskStatus
 from app.models.user import User
 from app.schemas.task import TaskCreate, TaskUpdate, TaskOut, TaskListOut
+from app.services.prediction_service import PredictionService
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -135,6 +136,7 @@ def update_task(
 
     db.commit()
     db.refresh(task)
+    PredictionService.retrain_if_closed(task, db)
     return task
 
 
@@ -167,6 +169,7 @@ def update_task_status(
     task.status = ts
     db.commit()
     db.refresh(task)
+    PredictionService.retrain_if_closed(task, db)
     return task
 
 

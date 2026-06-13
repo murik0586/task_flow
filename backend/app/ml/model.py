@@ -8,8 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.models.task import Task, TaskStatus
 from app.core.config import settings
-
-
+from app.schemas.ml import PredictionResult
 # Минимальное количество записей для обучения модели
 MIN_GLOBAL_SAMPLES = 10
 MIN_USER_SAMPLES = 5
@@ -257,33 +256,41 @@ class CompletionTimePredictor:
 
         return np.hstack(features)
 
-    def predict(self, task: Task, user_id: int, db: Session) -> float:
+    def predict_with_source(self, task: Task, user_id: int,
+                            db: Session) -> PredictionResult:
         """
-        Возвращает предсказанное время в секундах для задачи task.
+        Возвращает предсказанное время и источник модели для задачи task.
         """
         cat_key = self._category_key(task.category_id)
 
-        # Пытаемся использовать персональную модель
         user_model = self.user_models.get((user_id, cat_key))
         if user_model is not None:
             features = (
                 self._make_prediction_features(task,
                                                user_id,
                                                cat_key, db))
-            return max(0.0, user_model.predict(features)[0])
+            pred = user_model.predict(features)[0]
+            if pred > 0:
+                return PredictionResult(pred, "personal")
 
-        # Иначе – глобальная модель категории
         global_model = self.global_models.get(cat_key)
         if global_model is not None:
             features = (
                 self._make_prediction_features(task,
                                                user_id,
                                                cat_key, db))
-            return max(0.0, global_model.predict(features)[0])
+            pred = global_model.predict(features)[0]
+            if pred > 0:
+                return PredictionResult(pred, "global")
 
-        # Fallback: среднее пользователя в этой категории →
-        # среднее пользователя → среднее категории → глобальное
-        return self._fallback(user_id, cat_key)
+        return PredictionResult(
+            max(0.0, self._fallback(user_id, cat_key)),
+            "fallback",
+        )
+
+    def predict(self, task: Task, user_id: int, db: Session) -> float:
+        """Возвращает только предсказанное время в секундах."""
+        return self.predict_with_source(task, user_id, db).predicted_seconds
 
     def _make_prediction_features(self, task: Task,
                                   user_id: int, cat_key: Any,

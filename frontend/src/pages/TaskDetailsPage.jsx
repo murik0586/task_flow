@@ -45,6 +45,7 @@ export const TaskDetailsPage = () => {
   const [predicting, setPredicting] = useState(false);
   const [error, setError] = useState('');
   const [predictionError, setPredictionError] = useState('');
+  const [predictionWarning, setPredictionWarning] = useState('');
 
   const categoryName = useMemo(() => {
     return categories.find((category) => category.id === task?.category_id)?.name || 'Без категории';
@@ -79,12 +80,18 @@ export const TaskDetailsPage = () => {
   const loadPrediction = async () => {
     setPredicting(true);
     setPredictionError('');
+    setPredictionWarning('');
+    setPrediction(null);
 
     try {
       const { data } = await mlApi.predictTask(taskId);
       setPrediction(data);
     } catch (err) {
-      setPredictionError(getApiErrorMessage(err, 'Не удалось получить прогноз'));
+      if (err.response?.status === 422) {
+        setPredictionWarning(getApiErrorMessage(err, 'Недостаточно данных для прогноза'));
+      } else {
+        setPredictionError(getApiErrorMessage(err, 'Не удалось получить прогноз'));
+      }
     } finally {
       setPredicting(false);
     }
@@ -357,6 +364,23 @@ export const TaskDetailsPage = () => {
         {!isEditing && (
           <section className="card" style={{ marginTop: '1.5rem' }}>
             <h2 style={{ marginBottom: '1rem' }}>ML-прогноз времени</h2>
+            <p style={{ color: 'var(--secondary-color)', marginBottom: '1rem' }}>
+              Для прогноза нужно минимум 5 завершённых задач с указанным фактическим временем.
+            </p>
+            {predictionWarning && (
+              <div
+                style={{
+                  marginBottom: '1rem',
+                  padding: '1rem',
+                  backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                  border: '1px solid #f59e0b',
+                  borderRadius: 'var(--radius)',
+                  color: '#b45309',
+                }}
+              >
+                {predictionWarning}
+              </div>
+            )}
             {predictionError && (
               <div style={{ marginBottom: '1rem' }}>
                 <ErrorMessage message={predictionError} />
@@ -364,6 +388,30 @@ export const TaskDetailsPage = () => {
             )}
             {prediction ? (
               <div>
+                <span
+                  style={{
+                    display: 'inline-block',
+                    marginBottom: '0.75rem',
+                    padding: '0.35rem 0.75rem',
+                    borderRadius: '999px',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    backgroundColor:
+                      prediction.model_source === 'personal'
+                        ? 'rgba(59, 130, 246, 0.12)'
+                        : prediction.model_source === 'global'
+                          ? 'rgba(16, 185, 129, 0.12)'
+                          : 'rgba(245, 158, 11, 0.12)',
+                    color:
+                      prediction.model_source === 'personal'
+                        ? '#1d4ed8'
+                        : prediction.model_source === 'global'
+                          ? '#047857'
+                          : '#b45309',
+                  }}
+                >
+                  {prediction.model_source_label}
+                </span>
                 <p style={{ fontSize: '1.5rem', fontWeight: 700 }}>
                   {formatSeconds(prediction.predicted_seconds)}
                 </p>
