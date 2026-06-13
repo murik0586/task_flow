@@ -54,3 +54,5 @@ export const tasksApi = {
     return apiClient.delete(`/tasks/${taskId}`);
   },
 };
+
+export { cleanTaskPayload };

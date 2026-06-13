@@ -8,6 +8,7 @@ export const Input = ({
   placeholder = '',
   required = false,
 }) => {
+  const inputId = name || (label ? `field-${label.toLowerCase()}` : undefined);
   const inputStyle = {
     width: '100%',
     padding: '0.5rem',
@@ -21,11 +22,15 @@ export const Input = ({
   return (
     <div style={{ marginBottom: '1rem' }}>
       {label && (
-        <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>
+        <label
+          htmlFor={inputId}
+          style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}
+        >
           {label} {required && <span style={{ color: 'var(--danger-color)' }}>*</span>}
         </label>
       )}
       <input
+        id={inputId}
         type={type}
         name={name}
         value={value}

@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  esbuild: {
+    jsx: 'automatic',
+  },
   plugins: [
     react(),
     VitePWA({
@@ -41,11 +44,20 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
+    fs: {
+      strict: false,
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
     },
+  },
+  test: {
+    environment: 'jsdom',
+    css: true,
+    setupFiles: ['./vitest.setup.js'],
+    include: ['src/test/**/*.{test,spec}.{js,jsx}'],
   },
 });
