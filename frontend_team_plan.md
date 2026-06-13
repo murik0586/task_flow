@@ -96,7 +96,7 @@ frontend/
 - Добавляет Dockerfile для фронта и обновляет compose так, чтобы фронт можно было поднять рядом с backend.
 - Финально проверяет сборку, auth-flow и деплой.
 
-### Данил, новичок: UI-kit и layout
+### Даниил, новичок: UI-kit и layout
 - Делает простые переиспользуемые компоненты: `Button`, `Input`, `Select`, `Textarea`, `Modal`, `Badge`, `Spinner`, `EmptyState`, `ErrorMessage`.
 - Делает общий `Header`, `Sidebar` или верхнее меню, контейнер страниц.
 - Делает базовые стили в `src/styles/global.css`: цвета, отступы, typography, responsive container.
