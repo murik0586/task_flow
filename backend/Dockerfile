@@ -20,8 +20,9 @@ COPY . .
 RUN addgroup --system app && \
     adduser --system --group app && \
     mkdir -p /app/models && \
-    chown -R app:app /app && \
-    chmod +x /app/docker-entrypoint.sh
+    sed -i 's/\r$//' /app/docker-entrypoint.sh && \
+    chmod +x /app/docker-entrypoint.sh && \
+    chown -R app:app /app
 
 EXPOSE 8000
 
