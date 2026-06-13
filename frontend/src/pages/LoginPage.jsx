@@ -23,7 +23,7 @@ export const LoginPage = () => {
 
     try {
       await login(email, password);
-      navigate(location.state?.from?.pathname || '/tasks', { replace: true });
+      navigate(location.state?.from?.pathname || '/', { replace: true });
     } catch (err) {
       setError(getApiErrorMessage(err, 'Ошибка входа'));
     } finally {

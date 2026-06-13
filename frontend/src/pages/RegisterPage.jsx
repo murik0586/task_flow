@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authApi } from '../api/authApi';
 import { getApiErrorMessage } from '../api/client';
+import { AuthContext } from '../store/AuthContext';
 import { Container } from '../components/layout/Container';
 import { Button } from '../components/ui/Button';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
@@ -16,6 +16,7 @@ export const RegisterPage = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { register } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -24,8 +25,8 @@ export const RegisterPage = () => {
     setError('');
 
     try {
-      await authApi.register(formData);
-      navigate('/login');
+      await register(formData);
+      navigate('/', { replace: true });
     } catch (err) {
       setError(getApiErrorMessage(err, 'Ошибка регистрации'));
     } finally {
