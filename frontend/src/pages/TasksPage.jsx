@@ -12,8 +12,14 @@ import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import { Spinner } from '../components/ui/Spinner';
 import { Textarea } from '../components/ui/Textarea';
+import { TimeDurationSliders } from '../components/ui/TimeDurationSliders';
 import { PRIORITY_LABELS, PRIORITY_OPTIONS } from '../constants/priorityLabels';
 import { STATUS_LABELS, STATUS_OPTIONS } from '../constants/statusLabels';
+import {
+  EMPTY_DURATION,
+  formatSeconds,
+  secondsToParts,
+} from '../utils/timeDuration';
 
 const PAGE_SIZE = 10;
 const EMPTY_FORM = {
@@ -33,8 +39,11 @@ export const TasksPage = () => {
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [initialDuration, setInitialDuration] = useState(EMPTY_DURATION);
   const [editingTask, setEditingTask] = useState(null);
   const [deleteTask, setDeleteTask] = useState(null);
+  const [completingTask, setCompletingTask] = useState(null);
+  const [finalDuration, setFinalDuration] = useState(EMPTY_DURATION);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -90,6 +99,7 @@ export const TasksPage = () => {
 
   const resetForm = () => {
     setFormData(EMPTY_FORM);
+    setInitialDuration(EMPTY_DURATION);
     setEditingTask(null);
   };
 
@@ -109,10 +119,12 @@ export const TasksPage = () => {
     setError('');
 
     try {
+      const payload = { ...formData, initialDuration };
+
       if (editingTask) {
-        await tasksApi.updateTask(editingTask.id, formData);
+        await tasksApi.updateTask(editingTask.id, payload);
       } else {
-        await tasksApi.createTask(formData);
+        await tasksApi.createTask(payload);
       }
 
       resetForm();
@@ -132,6 +144,7 @@ export const TasksPage = () => {
       category_id: task.category_id || '',
       priority: task.priority || 'medium',
     });
+    setInitialDuration(secondsToParts(task.initial_assessment_seconds));
   };
 
   const changeStatus = async (taskId, nextStatus) => {
@@ -140,6 +153,43 @@ export const TasksPage = () => {
       setTasks((current) => current.map((task) => (task.id === taskId ? data : task)));
     } catch (err) {
       setError(getApiErrorMessage(err, 'Не удалось сменить статус'));
+    }
+  };
+
+  const handleStatusClick = (task, nextStatus) => {
+    if (nextStatus === 'close' && task.status !== 'close') {
+      setCompletingTask(task);
+      setFinalDuration(secondsToParts(task.initial_assessment_seconds));
+      return;
+    }
+
+    changeStatus(task.id, nextStatus);
+  };
+
+  const confirmComplete = async () => {
+    if (!completingTask) {
+      return;
+    }
+
+    setSaving(true);
+    setError('');
+
+    try {
+      await tasksApi.updateTask(completingTask.id, {
+        name: completingTask.name,
+        description: completingTask.description || '',
+        category_id: completingTask.category_id || '',
+        priority: completingTask.priority || 'medium',
+        finalDuration,
+      });
+      await changeStatus(completingTask.id, 'close');
+      setCompletingTask(null);
+      setFinalDuration(EMPTY_DURATION);
+      await loadTasks();
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Не удалось завершить задачу'));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -164,7 +214,7 @@ export const TasksPage = () => {
           <div>
             <h1>Задачи</h1>
             <p style={{ color: 'var(--secondary-color)' }}>
-              CRUD, фильтры, сортировка, пагинация и быстрые статусы.
+              Планируйте работу, отслеживайте прогресс и фиксируйте, сколько времени ушло на выполнение.
             </p>
           </div>
         </div>
@@ -228,6 +278,12 @@ export const TasksPage = () => {
                 </option>
               ))}
             </select>
+
+            <TimeDurationSliders
+              label="Сколько времени планируете потратить?"
+              value={initialDuration}
+              onChange={setInitialDuration}
+            />
 
             <div className="actions-row">
               <Button type="submit" disabled={saving || !formData.name.trim()}>
@@ -321,6 +377,16 @@ export const TasksPage = () => {
                       <p style={{ color: 'var(--secondary-color)', marginTop: '0.25rem' }}>
                         Приоритет: {PRIORITY_LABELS[task.priority] || task.priority || 'Средний'}
                       </p>
+                      {task.initial_assessment_seconds > 0 && (
+                        <p style={{ color: 'var(--secondary-color)', marginTop: '0.25rem' }}>
+                          План: {formatSeconds(task.initial_assessment_seconds)}
+                        </p>
+                      )}
+                      {task.final_assessment_seconds > 0 && (
+                        <p style={{ color: 'var(--secondary-color)', marginTop: '0.25rem' }}>
+                          Факт: {formatSeconds(task.final_assessment_seconds)}
+                        </p>
+                      )}
                     </div>
                     <Badge status={task.status} />
                   </div>
@@ -334,7 +400,7 @@ export const TasksPage = () => {
                         size="sm"
                         variant={task.status === status.value ? 'primary' : 'secondary'}
                         disabled={task.status === status.value}
-                        onClick={() => changeStatus(task.id, status.value)}
+                        onClick={() => handleStatusClick(task, status.value)}
                       >
                         {STATUS_LABELS[status.value]}
                       </Button>
@@ -378,7 +444,24 @@ export const TasksPage = () => {
           confirmText="Удалить"
           onConfirm={confirmDelete}
         >
-          <p>Задача "{deleteTask?.name}" будет удалена без восстановления.</p>
+          <p>Задача «{deleteTask?.name}» будет удалена без восстановления.</p>
+        </Modal>
+
+        <Modal
+          isOpen={Boolean(completingTask)}
+          onClose={() => {
+            setCompletingTask(null);
+            setFinalDuration(EMPTY_DURATION);
+          }}
+          title="Завершить задачу"
+          confirmText="Сохранить и завершить"
+          onConfirm={confirmComplete}
+        >
+          <p style={{ marginBottom: '1rem' }}>
+            Сколько времени вы потратили на «{completingTask?.name}»? Мы подставили вашу первоначальную оценку — при
+            необходимости скорректируйте.
+          </p>
+          <TimeDurationSliders value={finalDuration} onChange={setFinalDuration} />
         </Modal>
       </main>
     </Container>

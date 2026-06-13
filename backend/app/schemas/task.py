@@ -10,6 +10,8 @@ class TaskBase(BaseModel):
     category_id: Optional[int] = Field(None, ge=1)
     priority: TaskPriority = TaskPriority.MEDIUM
     due_date: Optional[datetime] = None
+    initial_assessment_seconds: Optional[int] = Field(None, ge=0)
+    final_assessment_seconds: Optional[int] = Field(None, ge=0)
 
 
 class TaskCreate(TaskBase):
@@ -27,12 +29,13 @@ class TaskUpdate(BaseModel):
     category_id: Optional[int] = Field(None, ge=1)
     priority: Optional[TaskPriority] = None
     due_date: Optional[datetime] = None
+    initial_assessment_seconds: Optional[int] = Field(None, ge=0)
+    final_assessment_seconds: Optional[int] = Field(None, ge=0)
 
 
 class TaskOut(TaskBase):
     id: int
     status: TaskStatus
-    actual_completion_time: Optional[int] = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -85,7 +85,7 @@ export const CategoriesPage = () => {
       <main style={{ padding: '2rem 0 3rem' }}>
         <h1>Категории</h1>
         <p style={{ color: 'var(--secondary-color)', marginBottom: '1.5rem' }}>
-          Минимальный CRUD категорий для фильтров задач.
+          Группируйте задачи по темам — так проще находить нужное и фильтровать список.
         </p>
 
         {error && (

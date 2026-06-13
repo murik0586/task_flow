@@ -230,6 +230,37 @@ a {
   align-items: center;
 }
 
+.duration-sliders {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--control-bg);
+}
+
+.duration-slider-row + .duration-slider-row {
+  margin-top: 0.75rem;
+}
+
+.duration-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.duration-slider {
+  width: 100%;
+  accent-color: var(--primary-color);
+}
+
+.duration-summary {
+  margin-top: 0.75rem;
+  color: var(--secondary-color);
+  font-size: 0.875rem;
+}
+
 @media (max-width: 900px) {
   .filters-bar {
     grid-template-columns: repeat(2, minmax(0, 1fr));

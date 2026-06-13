@@ -38,6 +38,7 @@ def create_task(
         category_id=task_in.category_id,
         priority=TaskPriority(task_in.priority.value),
         due_date=task_in.due_date,
+        initial_assessment_seconds=task_in.initial_assessment_seconds,
         user_id=current_user.id,
     )
     db.add(task)

@@ -10,23 +10,7 @@ import { Button } from '../components/ui/Button';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { Spinner } from '../components/ui/Spinner';
 import { PRIORITY_LABELS } from '../constants/priorityLabels';
-
-const formatSeconds = (seconds) => {
-  const rounded = Math.round(seconds);
-  const hours = Math.floor(rounded / 3600);
-  const minutes = Math.floor((rounded % 3600) / 60);
-  const restSeconds = rounded % 60;
-
-  if (hours > 0) {
-    return `${hours} ч ${minutes} мин`;
-  }
-
-  if (minutes > 0) {
-    return `${minutes} мин ${restSeconds} сек`;
-  }
-
-  return `${restSeconds} сек`;
-};
+import { formatSeconds } from '../utils/timeDuration';
 
 export const TaskDetailsPage = () => {
   const { taskId } = useParams();
@@ -129,10 +113,18 @@ export const TaskDetailsPage = () => {
               <dd>{task.description || 'Нет описания'}</dd>
             </div>
             <div>
+              <dt>Плановое время</dt>
+              <dd>
+                {task.initial_assessment_seconds
+                  ? formatSeconds(task.initial_assessment_seconds)
+                  : 'Не указано'}
+              </dd>
+            </div>
+            <div>
               <dt>Фактическое время</dt>
               <dd>
-                {task.actual_completion_time
-                  ? formatSeconds(task.actual_completion_time)
+                {task.final_assessment_seconds
+                  ? formatSeconds(task.final_assessment_seconds)
                   : 'Пока не указано'}
               </dd>
             </div>
@@ -155,7 +147,7 @@ export const TaskDetailsPage = () => {
             </div>
           ) : (
             <p style={{ color: 'var(--secondary-color)', marginBottom: '1rem' }}>
-              Нажмите кнопку, чтобы запросить прогноз `GET /tasks/{taskId}/predict`.
+              Нажмите кнопку, чтобы получить прогноз времени выполнения на основе вашей истории задач.
             </p>
           )}
           <Button onClick={loadPrediction} disabled={predicting}>
