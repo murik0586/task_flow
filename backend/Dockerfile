@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     python3-dev \
+    gosu \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -18,13 +19,14 @@ COPY . .
 
 RUN addgroup --system app && \
     adduser --system --group app && \
-    chown -R app:app /app
-
-USER app
+    mkdir -p /app/models && \
+    chown -R app:app /app && \
+    chmod +x /app/docker-entrypoint.sh
 
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8000/ || exit 1
 
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["sh", "-c", "alembic upgrade head && python -m uvicorn main:app --host 0.0.0.0 --port 8000"]

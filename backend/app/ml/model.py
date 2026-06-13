@@ -1,5 +1,6 @@
 import pickle
 import os
+import logging
 from typing import Dict, Optional, Tuple, Any
 import numpy as np
 import pandas as pd
@@ -15,6 +16,8 @@ MIN_USER_SAMPLES = 5
 
 # Ключ для категории NULL
 NULL_CATEGORY_KEY = "__none__"
+
+logger = logging.getLogger(__name__)
 
 
 class CompletionTimePredictor:
@@ -52,19 +55,23 @@ class CompletionTimePredictor:
 
     def save(self):
         path = self._model_path()
-        # на случай, если путь относительный, создаём папку, если есть
         dir_name = os.path.dirname(path)
-        if dir_name:
-            os.makedirs(dir_name, exist_ok=True)
-        with open(path, "wb") as f:
-            pickle.dump({
-                "global_models": self.global_models,
-                "user_models": self.user_models,
-                "global_mean": self.global_mean,
-                "category_means": self.category_means,
-                "user_means": self.user_means,
-                "user_category_means": self.user_category_means,
-            }, f)
+        try:
+            if dir_name:
+                os.makedirs(dir_name, exist_ok=True)
+            with open(path, "wb") as f:
+                pickle.dump({
+                    "global_models": self.global_models,
+                    "user_models": self.user_models,
+                    "global_mean": self.global_mean,
+                    "category_means": self.category_means,
+                    "user_means": self.user_means,
+                    "user_category_means": self.user_category_means,
+                }, f)
+        except OSError as exc:
+            logger.warning(
+                "Не удалось сохранить ML-модель в %s: %s", path, exc,
+            )
 
     @staticmethod
     def _category_key(category_id: Optional[int]) -> Any:
